@@ -27,8 +27,11 @@ The top level directory is for readme, license files, config files and anything
 not related to code.
 
 >cargo build
-After successful build, 'Cargo.lock' whick tracks exact versions of 
-dependencies.  'Cargo.lock' managed by 
+'Cargo.lock' - after a successful build, this file tracks exact versions of 
+dependencies.  
+
+>cargo update
+Updates dependencies (related to Cargo.lock).  Change [dependencies] in toml.
 
 >cargo run
 >cargo check
