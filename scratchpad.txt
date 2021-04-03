@@ -1,0 +1,35 @@
+
+Linux/Macos Install
+-------------------
+>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+>rustup update
+
+Linux/Macos Uninstall
+---------------------
+>rustup self uninstall
+
+Compile and link
+----------------
+>rustc main.rs
+
+Cargo: Build system and package manager
+---------------------------------------
+>cargo --version
+
+>cargo new hello_cargo
+>cd hello_cargo
+
+See 'Cargo.toml' (Toms Obvious, Minimal Language).
+This file contains project config and dependencies to packages (aka Crates).
+Cargo expects source files to be in ./src
+The top level directory is for readme, license files, config files and anything
+not related to code.
+
+>cargo build
+After successful build, 'Cargo.lock' whick tracks exact versions of 
+dependencies.  'Cargo.lock' managed by 
+
+>cargo run
+>cargo check
+>cargo build --release
