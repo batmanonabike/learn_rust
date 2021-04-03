@@ -21,9 +21,14 @@ fn main() {
 
         // Also we reuse the same named variable.  Here we 'shadow' the previous value with a new 
         // one. This means we dont need another variable name.
-        let guess : u32  = guess.trim().parse()
-            .expect("Please type a number!");
 
+        // Using the variant from .parse (Ok or Err) to get a new number when parse fails.
+        let guess : u32 = match guess.trim().parse() {  // Using arms ...
+            Ok(num) => num,                             // => num is like, 'return num'
+            Err(_) => continue,                         // The underscore is a catchall value.            
+        };                                              // '_' is a special character, this is NOT
+                                                        // like a c++ lambda.
+            
         println!("You guessed: {}", guess);
         
         match guess.cmp(&secret_number) {                
