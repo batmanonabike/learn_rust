@@ -101,8 +101,38 @@ fn character_type() {
     println!("cat: {}", cat);
 }
 
+#[allow(dead_code)]
+#[allow(unused_variables)]
+fn tuple_type() {
+    let tup1: (i32, f64, u8) = (500, 6.4, 1);
+
+    let tup2 = (512, 6.4, "Some string");
+    let (x, y, z) = tup2;
+    println!("x: {}, y: {}, z: \"{}\"", x, y, z);
+
+    let x2 = tup2.0;
+    let y2 = tup2.1;
+    let z2 = tup2.2;
+    println!("x2: {}, y2: {}, z2: \"{}\"", x2, y2, z2);
+}
+
+#[allow(dead_code)]
+#[allow(unused_variables)]
+fn array_type() {
+    let a = [1, 2, 3, 4, 5];
+    let b: [i32; 5] = [1, 2, 3, 4, 5];
+    let c = [3; 5]; // [3, 3, 3, 3, 3]
+    let months = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+        "Jul", "Aug", "Sep", "Oct", "Now,", "Dec"];
+
+    let val1 = a[0];
+    let val2 = a[1];
+}
+
 fn main() {
 
+    tuple_type();
     character_type();
     const_specifics();
     integer_literals();
