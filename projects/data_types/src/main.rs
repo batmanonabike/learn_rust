@@ -132,6 +132,7 @@ fn array_type() {
 
 fn main() {
 
+    // See ../ownership/src/main.rs for String type.
     tuple_type();
     character_type();
     const_specifics();
