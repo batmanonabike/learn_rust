@@ -36,6 +36,8 @@ fn using_if(x: i32) {
 fn using_if_with_let() {
     let condition = true;
 
+    // Similar to C/C++...
+    // x ? something : somethingelse 
     let number = if condition {
         5 // Do not supply a trailing semi-colon
     } else {
