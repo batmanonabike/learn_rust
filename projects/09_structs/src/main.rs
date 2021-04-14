@@ -111,6 +111,7 @@ struct UnitStruct {
 
 fn tuple_structs_wthout_named_fields() {
 
+    // These are tuple structs
     #[derive(Debug)] struct Colour(i32, i32, i32); // Note that these are... 
     #[derive(Debug)] struct Point(i32, i32, i32);  // ... different types
 
