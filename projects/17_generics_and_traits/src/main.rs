@@ -1,11 +1,11 @@
 fn main() {
-    //test_largest();
     test_generic_method();
     test_mixup();
     test_tweet();
     test_show_user();
     test_notify();
     test_notify2();
+    test_largest();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -326,3 +326,68 @@ fn returns_summarisable() -> impl Summary {
 } */
 // This is due to restrictions on how the impl Trait syntax is implemented in the compiler.
 // This can be overcome (more later).
+
+// We now know enough to implement the 'largest' function from earlier, using trait bounds.
+// We need to restrict to comparable types and prohibit move types.
+// We could also get returned a reference to a value of T in the slice.
+fn largest<T: PartialOrd + Copy>(list: &[T]) -> T {
+    let mut largest = list[0];
+
+    for &item in list.iter() {
+        if item > largest {
+            largest = item;
+        }
+    }
+
+    largest
+}
+
+fn test_largest() {
+
+    let num_list = vec![34, 54, 12, 34];
+    println!("largest1: {}", largest(&num_list));
+
+    let char_list = vec!['y', 'a', 'b', 'm'];
+    println!("largest2: {}", largest(&char_list));
+}
+
+// Using Trait bounds to conditionally implement methods.
+struct Pair<T> {
+    x: T,
+    y: T
+}
+
+#[allow(dead_code)]
+impl<T> Pair<T> {
+    fn new(x: T, y: T) -> Self {
+        Self { x, y }
+    }
+}
+
+// Pair<T> only implements cmp_display if the inner type T implements the PartialOrd and Display
+// trait.
+#[allow(dead_code)]
+impl<T: Display + PartialOrd> Pair<T> {
+    fn cmp_display(&self) {
+        if self.x >= self.y {
+            println!("largest member is x =  {}", self.x);
+        } else {
+            println!("largest member is y =  {}", self.y);
+        }
+    }
+}
+
+// Conditionally implement a trait for any type that implements another trait.
+// For example the standard library implements a ToString trait on any type that implements the 
+// Display trait...
+// impl<T: Display> ToString for T {    
+// }
+
+// Because the standard library has this blanket implementation, we can we can call...
+#[allow(dead_code)]
+#[allow(unused_variables)]
+fn using_to_string() {
+    let s = 3.to_string(); // E.g.  We can turn integers to their corresponding String values.
+}
+
+
