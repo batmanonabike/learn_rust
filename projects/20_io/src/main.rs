@@ -1,4 +1,5 @@
 // cargo run the poem.txt
+// cargo run frog poem.txt
 //           ^^^ to supply command line arguments.
 
 use std::env; // For command line args.

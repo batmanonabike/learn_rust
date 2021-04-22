@@ -30,6 +30,10 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>>{
 
     let contents = fs::read_to_string(config.filename)?;        
 
+    for line in search(&config.query, &contents) {
+        println!("{}", line);
+    }
+
     // use () inside Ok is to indicate we are using this function for its side effects only, it
     // doesn't return a value we need.
     Ok(())
