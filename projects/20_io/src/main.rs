@@ -8,7 +8,7 @@ use io::Config;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    println!("{:?}", args); // ["target/debug/io", "the", "poem.txt"]
+    //println!("{:?}", args); // ["target/debug/io", "the", "poem.txt"]
 
     // unwrap_or_else() is similar un unwrap(), it returns the inner value of Ok on success.  If
     // the result is an Err value, the method calls the closure, which is an anonymous function we
