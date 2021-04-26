@@ -1,6 +1,15 @@
 
 # Cargo has two main profiles, dev and release.
+# Cargo has default settings for each profile when there aren't any [profile.*] sections.
+# We can add these to customize...
+[profile.dev]
+opt-level = 0
 
+[profile.release]
+opt-level = 3
+
+# The full list of options can be found at: https://doc.rust-lang.org/cargo/
+# #####################
 
 [package]
 name = "cargo_and_crates_io"
