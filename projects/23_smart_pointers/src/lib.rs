@@ -191,9 +191,6 @@ impl<'a, T> LimitTracker<'a, T>
         pub fn set_value(&mut self, value: usize) {
             self.value  = value;
             
-            // The send method below takes an immutable reference to self.
-            // We don't want to change the trait to use &mut self (as suggested by the compiler)
-            // error.
             let percent = self.value as f64 / self.max as f64;
             if percent >= 1.0 {
                 self.messenger.send("Oops: over quota");
@@ -210,19 +207,26 @@ impl<'a, T> LimitTracker<'a, T>
 mod tests {
     use super::*;
 
+    // Here we will use interior mutability because the send method on the Messenger trait takes an 
+    // immutable reference to self.  We don't want to change the trait to use &mut self (as 
+    // suggested by the compiler error.
+    use std::cell::RefCell;
+
     struct MockMessenger {
-        sent_messages: Vec<String>
+        sent_messages: RefCell<Vec<String>>
     }
 
     impl MockMessenger {
         fn new() -> MockMessenger {
-            MockMessenger { sent_messages: vec![] }
+            MockMessenger { sent_messages: RefCell::new(vec![]) }
         }
     }
 
     impl Messenger for MockMessenger {
         fn send(&self, message: &str) {
-            self.sent_messages.push(String::from(message));
+            // We call borrow_mut() to get a mutable reference to the value.
+            // We can then call push on the mutable reference.
+            self.sent_messages.borrow_mut().push(String::from(message));
         }
     }
 
@@ -233,9 +237,51 @@ mod tests {
 
         limit_tracker.set_value(80);
 
-        assert_eq!(mock_messenger.sent_messages.len(), 1);
-        assert_eq!(1, 2);
+        // Now we need to call borrow() to get an immutable reference from the RefCell.
+        assert_eq!(mock_messenger.sent_messages.borrow().len(), 1);
     }
 }
 
+// Keeping track of Borrows at RunTime with RefCell<T>
+// When creating immutable and mutable references (generally) we use the '&' and '&mut' syntax 
+// respectively.
+// With RefCell<T> we use 'borrow()' and 'borrow_mut()' respectively.
+// 'borrow' returns the smrt pointer Ref<T>.
+// 'borrow_mut()' returns rhe smart pointer RefMut<T>.
+// Both types implement Deref so we can treat them like regular references.
+// RefCell<T> keeps track of how many Ref<T> and RefMut<T> smart pointers are currently active.
+// Just like the compile time borrowing rules, we can have many immutable borrows or ONE mutable 
+// borrow at any point time time.  Violating these rules causes a panic.
+
+
+// Having multiple owners of mutable data by combining Rc<T> and RefCell<T>
+// Rc<T> holds only immutable valies so we add RefCell<T> to gain the ability to change the values
+// in the list.
+use std::cell::RefCell;
+
+#[derive(Debug)]
+enum MutList {
+    MyMutCons(Rc<RefCell<i32>>, Rc<MutList>), 
+    Nil
+}
+
+pub fn test_multiple_owners_of_mutable() {
+    use crate::MutList::{MyMutCons, Nil};
+
+    let value = Rc::new(RefCell::new(5));
+    let a = Rc::new(MyMutCons(Rc::clone(&value), Rc::new(Nil)));
+
+    let b = MyMutCons(Rc::new(RefCell::new(6)), Rc::clone(&a));
+    let c = MyMutCons(Rc::new(RefCell::new(10)), Rc::clone(&a));
+
+    *value.borrow_mut() += 10;
+    println!("a after: {:?}", a);
+    println!("b after: {:?}", b);
+    println!("c after: {:?}", c);
+}
+
+// Note that we also have Cell<T> aswell as RefCell<T> which is similar but, instead of giving us
+// references to the inner value, copies the value in and out of Cell<T>/
+// We also have Mutex<T> which offers interior mutability that is safe to use across multiple 
+// threads.
 
