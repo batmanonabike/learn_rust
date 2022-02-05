@@ -295,7 +295,7 @@ fn terse_function_with_multiple_trait_bounds<T, U>(t: T, u: T) -> i32
 }
 
 // Returning types that implement traits.
-// This is useful in the contet of closures and iterators.
+// This is useful in the context of closures and iterators.
 #[allow(dead_code)]
 fn returns_summarisable() -> impl Summary {
     Tweet {
@@ -355,13 +355,6 @@ fn test_largest() {
 struct Pair<T> {
     x: T,
     y: T
-}
-
-#[allow(dead_code)]
-impl<T> Pair<T> {
-    fn new(x: T, y: T) -> Self {
-        Self { x, y }
-    }
 }
 
 // Pair<T> only implements cmp_display if the inner type T implements the PartialOrd and Display

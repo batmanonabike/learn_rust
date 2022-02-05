@@ -37,7 +37,7 @@
 //      Are entirely external to your library, using only the public interface and potentially 
 //      exercising multiple modules per test.
 //      We create a 'tests' directory at the top level of our projects diectory, next to 'src'.
-//      We can make as manay tests files as needed here.  Note that Cargo will COMPILE EACH FILE IN
+//      We can make as many tests files as needed here.  Note that Cargo will COMPILE EACH FILE IN
 //      'tests' as a different crate.
 //      If we need satellite helper files for 'tests' that dont want to be in a different crate then 
 //      can create a 'tests/commmon' directory and place setup functions in 'tests/common/mod.rs'

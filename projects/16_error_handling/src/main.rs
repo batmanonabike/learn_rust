@@ -116,7 +116,7 @@ fn terse_returning_errors_to_caller() -> Result<String, io::Error> {
     let mut f = File::open("hello.txt")?; // Return io::Error on failure or assign file to f. 
     let mut s = String::new();
     
-    f.read_to_string(&mut s) ?;  // return io::Error on failure.
+    let _a = f.read_to_string(&mut s) ?;  // return io::Error on failure.
     Ok(s)                        // If no error occurs then we return Ok(s)
 
     // Note that the ? operator can only be used with functions that return Result<T, E> types.
