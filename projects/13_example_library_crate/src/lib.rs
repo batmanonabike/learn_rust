@@ -1,10 +1,14 @@
 // cargo new --lib restaurant
 
+#![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
+
 // 'mod' defines a module.  Allowing us to group related definitions.  Very similar to namespaces.
 // Modules also define the 'privacy boundary.  Inner details are hidden by default.
 // Items in a parent module cannot use private items inside child modules however items in child
 // modules can use itesm in their ancestor modules.
-mod front_of_house { 
+mod front_of_house {
 
     // HIDING INNER DETAILS IS THE DEFAULT.  We use 'pub' to expose the path to this module.
     // We also need to declare 'public': functions, structs, enums, methods aswell as modules when
@@ -27,7 +31,7 @@ mod front_of_house {
 // as the 'module tree'.
 //
 //  crate
-//      front_of_house 
+//      front_of_house
 //          hosting
 //              add_to_waitlist
 //              seat_at_table
@@ -42,46 +46,44 @@ mod front_of_house {
 // Paths are used to refer to an item in the module tree (similar to a file system).
 // To call a function we need its path.  Paths can take two forms:
 // 1).  absolute paths: starting from crate root by using a crate name or a literal crate.
-// 2).  relative paths: from the current path by using 'self', 'super' or an identifer in the 
+// 2).  relative paths: from the current path by using 'self', 'super' or an identifer in the
 //      current module.
 //
 // 'pub' makes this function part of the publically exposed API (like 'public:').
-pub fn eat_at_restaurant() { 
-    
-    // We need the module 'hosting' to be public to call this from here..  
+pub fn eat_at_restaurant() {
+    // We need the module 'hosting' to be public to call this from here..
     // HIDING INNER DETAILS IS THE DEFAULT.
 
     crate::front_of_house::hosting::add_to_waitlist(); // Absolute path.
     front_of_house::hosting::add_to_waitlist(); // Relative path.
 }
 
-fn server_order() {
-}
+fn server_order() {}
 
 mod back_of_house {
     fn fix_incorrect_order() {
         cook_order();
-        super::server_order(); // Calling a function using a relative path using 'super' 
+        super::server_order(); // Calling a function using a relative path using 'super'
     }
 
-    fn cook_order() {
-    }
+    fn cook_order() {}
 
     pub struct Breakfast {
         pub toast: String, // fields are private by default.
-        seasonal_fruit: String
+        seasonal_fruit: String,
     }
 
-    pub enum Appetizer { // 'pub' affects all of its variants, Soup and Salad.
+    pub enum Appetizer {
+        // 'pub' affects all of its variants, Soup and Salad.
         Soup,
-        Salad
+        Salad,
     }
 
     impl Breakfast {
         pub fn summer(toast: &str) -> Breakfast {
             Breakfast {
                 toast: String::from(toast),
-                seasonal_fruit: String::from("Peaches")
+                seasonal_fruit: String::from("Peaches"),
             }
         }
     }
@@ -102,7 +104,7 @@ pub fn eat_at_restaurant2() {
 
 // Note that a 'module' can only be defined only once, this won't compilre
 // mod back_of_house {
-// } 
+// }
 
 // Pulling paths to modules into scope using 'use'
 pub fn eat_at_restaurant3() {
@@ -151,16 +153,16 @@ fn function3(result: IoResult<()>) {}
 // rand = "0.5.5"
 //
 // https://crates.io contains many publically available packages.
-// 
-// Tne standard library (std) is also an external crate but comes with the compiler so we don't 
+//
+// Tne standard library (std) is also an external crate but comes with the compiler so we don't
 // need to pull this in as a dependency.
-use rand::Rng; // This is an absolute path 
+use rand::Rng; // This is an absolute path
 fn use_external_package() {
     let num = rand::thread_rng().gen_range(1, 101);
 }
 
 // We can simplify 'use' when pulling in nested paths.
-//   use std::{io, cmp::Ordering};  
+//   use std::{io, cmp::Ordering};
 // This is equivalent to:
 //   use std::io;
 //   use std::cmp::Ordering;
