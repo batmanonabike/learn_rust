@@ -98,11 +98,6 @@ fn client() {
             .write_all(&bytes_out)
             .expect("Failed to write to stream");
 
-        // stream
-        //     .write_all(json.as_bytes())
-        //     .expect("Failed to write to stream");
-        // stream.write_all(b"\n").expect("Failed to write to stream");
-
         let mut reader = BufReader::new(&stream);
         reader
             .read_until(b'\n', &mut buffer)
