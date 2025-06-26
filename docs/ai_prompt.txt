@@ -4,4 +4,11 @@
 Can you look through all the projects, through the source (*.rs) and config (*.toml) and create `learn_rust.md` so that I can print this out and review this, like a book.
 ```
 
-vscode has an extension called `Markdown PDF` which is useful for printable markdown format.
+vscode has an extension called `Markdown PDF` which is useful for printable markdown format but it didn't seem manage this larger file.
+
+What worked was:
+> pandoc -f markdown -t html learn_rust.md -o learn_rust.html
+Then print to PDF (or to printer).
+
+https://chocolatey.org/install
+> choco install pandoc
