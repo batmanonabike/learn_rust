@@ -1,0 +1,8 @@
+Rust is a systems programming language.
+It focuses on safety, speed, and concurrency.
+Rust prevents segfaults and guarantees memory safety.
+Many developers love Rust for its performance.
+Learning Rust can be challenging but rewarding.
+The Rust community is welcoming and helpful.
+Cargo is Rust's build system and package manager.
+Ownership is a key concept in Rust programming.
