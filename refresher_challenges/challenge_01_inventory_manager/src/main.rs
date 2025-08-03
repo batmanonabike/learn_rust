@@ -12,34 +12,67 @@ struct Inventory {
 }
 
 impl Inventory {
-    // TODO: Implement new() method
     fn new() -> Self {
-        todo!("Create a new empty inventory")
+        Inventory {
+            items: Vec::new(),
+        }
     }
 
-    // TODO: Implement add_item method
     fn add_item(&mut self, name: String, price: f64, quantity: u32) {
-        todo!("Add a new item to the inventory")
+        match self.items.iter_mut().find(|item| item.name == name) {
+            Some(inv) => {
+                inv.price = price;
+                inv.quantity += quantity;
+            }
+            None => {
+                let new_item = Item {
+                    name,
+                    price,
+                    quantity,
+                };
+                self.items.push(new_item);
+            }
+        }
     }
 
-    // TODO: Implement find_item method
     fn find_item(&self, name: &str) -> Option<&Item> {
-        todo!("Find an item by name")
+        self.items.iter().find(|item| item.name == name)
     }
 
-    // TODO: Implement update_quantity method
     fn update_quantity(&mut self, name: &str, new_quantity: u32) -> Result<(), String> {
-        todo!("Update the quantity of an existing item")
+        if let Some(item) = self.items.iter_mut().find(|item| item.name == name) {
+            item.quantity = new_quantity;
+            Ok(())
+        } else {
+            Err(format!("Item {} not found in inventory", name))
+        }
     }
 
-    // TODO: Implement remove_items method
     fn remove_items(&mut self, name: &str, quantity: u32) -> Result<(), String> {
-        todo!("Remove items from inventory, handle insufficient quantity")
+
+        if let Some(index) = self.items.iter().position(|item| item.name == name) {          
+            let mut item = &mut self.items[index];  
+            if item.quantity < quantity {
+                Err(format!("Insufficient quantity"))
+            } else {
+                item.quantity -= quantity;
+                if (item.quantity == 0) {
+                    self.items.remove(index);
+                } 
+                Ok(())
+            } 
+
+        } else {
+            Err(format!("Item {} not found in inventory", name))
+        }
     }
 
-    // TODO: Implement total_value method
     fn total_value(&self) -> f64 {
-        todo!("Calculate total value of all items in inventory")
+        let mut total = -0.0;
+        for item in self.items.iter() {
+            total += item.quantity as f64 * item.price;
+        }
+        total
     }
 }
 
@@ -57,7 +90,7 @@ fn main() {
     }
     
     match inventory.remove_items("Laptop", 10) {
-        Ok(()) => println!("Error: {}", e),
+        Ok(()) => println!("Removed 10 laptops", ),
         Err(e) => println!("Error: {}", e),
     }
 }
