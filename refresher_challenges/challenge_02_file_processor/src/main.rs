@@ -1,7 +1,7 @@
 // Challenge 2: File Text Processor
 // Your task: implement a text processing tool with file I/O and collections
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 
 #[derive(Debug)]
@@ -18,14 +18,16 @@ struct TextProcessor {
 }
 
 impl TextProcessor {
-    // TODO: Implement new method that reads file and handles errors
     fn new(filename: &str) -> Result<TextProcessor, Box<dyn std::error::Error>> {
-        todo!("Read file content and create TextProcessor")
+        let content = fs::read_to_string(filename)?;        
+        Ok(TextProcessor {
+            content,
+            filename: filename.to_string(),
+        })
     }
-
-    // TODO: Implement get_stats method
-    fn get_stats(&self) -> TextStats {
-        todo!("Calculate text statistics")
+    
+    fn get_stats(&self) -> TextStats {        
+        Self::count_words(&self.content)
     }
 
     // TODO: Implement search_lines method
@@ -47,10 +49,29 @@ impl TextProcessor {
     fn word_frequency(&self) -> HashMap<String, usize> {
         todo!("Count frequency of each word (case-insensitive)")
     }
-
+    
     // TODO: Implement save_to_file method
     fn save_to_file(&self, filename: &str, content: &str) -> Result<(), Box<dyn std::error::Error>> {
         todo!("Save content to a file")
+    }
+
+    fn count_words(content: &str) -> TextStats {
+        let lines = content.lines().count();
+        let characters = content.chars().count();
+
+        let words_array: Vec<&str> = content.split_whitespace().collect();
+        let words = words_array.len();
+
+        let unique_words_map = words_array.into_iter().map(|word| word.to_lowercase());
+        let unique_words_set = unique_words_map.collect::<HashSet<String>>();
+        let unique_words = unique_words_set.len();
+            
+        TextStats {
+            lines,
+            words,
+            characters,
+            unique_words
+        }
     }
 }
 

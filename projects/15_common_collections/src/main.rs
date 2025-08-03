@@ -1,3 +1,4 @@
+
 fn main() {
     using_vectors();
     using_vectors_of_enums_with_values();
@@ -13,6 +14,7 @@ fn main() {
 
     hash_map_basics();
     hash_map_ownership();
+    hash_set_basics();
 }
 
 fn using_vectors() {
@@ -178,8 +180,9 @@ fn string_grapheme_cluster() {
 // Note that the default hash is cryptographically secure so is not the best performance.  
 // Though this can be changed.
 
-// HashMaps are not commonly used so need to be brought in.
+// HashMaps and HashSets are not commonly used so need to be brought in.
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 fn hash_map_basics() {
 
@@ -240,4 +243,48 @@ fn hash_map_ownership() {
     // Wont compile.
     // println!("field_name: {}", field_name);
     // println!("field_value: {}", field_value);
+}
+
+fn hash_set_basics() {
+    // HashSet stores unique values only (no duplicates)
+    let mut books = HashSet::new();
+
+    // Insert values
+    books.insert("The Rust Programming Language");
+    books.insert("Programming Rust");
+    books.insert("Rust in Action");
+    books.insert("The Rust Programming Language"); // Duplicate - won't be added
+
+    println!("Number of books: {}", books.len()); // Will be 3, not 4
+
+    // Check if a value exists
+    if books.contains("Rust in Action") {
+        println!("Found 'Rust in Action'!");
+    }
+
+    // Iterate over the set
+    for book in &books {
+        println!("Book: {}", book);
+    }
+
+    // Create from a vector (duplicates will be removed)
+    let numbers = vec![1, 2, 3, 2, 1, 4, 3];
+    let unique_numbers: HashSet<_> = numbers.into_iter().collect();
+    println!("Unique numbers: {:?}", unique_numbers);
+
+    // Set operations
+    let set1: HashSet<i32> = [1, 2, 3, 4].iter().cloned().collect();
+    let set2: HashSet<i32> = [3, 4, 5, 6].iter().cloned().collect();
+
+    // Union (all unique elements from both sets)
+    let union: HashSet<_> = set1.union(&set2).collect();
+    println!("Union: {:?}", union);
+
+    // Intersection (common elements)
+    let intersection: HashSet<_> = set1.intersection(&set2).collect();
+    println!("Intersection: {:?}", intersection);
+
+    // Difference (elements in set1 but not in set2)
+    let difference: HashSet<_> = set1.difference(&set2).collect();
+    println!("Difference: {:?}", difference);
 }
