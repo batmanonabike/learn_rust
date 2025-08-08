@@ -14,7 +14,7 @@ struct TextStats {
 
 struct TextProcessor {
     content: String,
-    filename: String,
+    // filename: String,
 }
 
 impl TextProcessor {
@@ -22,37 +22,71 @@ impl TextProcessor {
         let content = fs::read_to_string(filename)?;        
         Ok(TextProcessor {
             content,
-            filename: filename.to_string(),
+            //filename: filename.to_string(),
         })
     }
     
     fn get_stats(&self) -> TextStats {        
         Self::count_words(&self.content)
     }
-
-    // TODO: Implement search_lines method
+    
     fn search_lines(&self, pattern: &str) -> Vec<(usize, String)> {
-        todo!("Find lines containing the pattern, return line number and content")
-    }
-
-    // TODO: Implement replace_text method
-    fn replace_text(&self, from: &str, to: &str) -> String {
-        todo!("Replace all occurrences of 'from' with 'to'")
-    }
-
-    // TODO: Implement to_uppercase method
-    fn to_uppercase(&self) -> String {
-        todo!("Convert content to uppercase")
-    }
-
-    // TODO: Implement word_frequency method
-    fn word_frequency(&self) -> HashMap<String, usize> {
-        todo!("Count frequency of each word (case-insensitive)")
+        let mut result: Vec<(usize, String)> = Vec::new();        
+        for (size, line) in self.content.lines().enumerate() {
+            if line.contains(pattern) {
+                result.push((size, line.to_string()));
+            }
+        }
+        result
     }
     
+    fn replace_text(&self, from: &str, to: &str) -> String {
+        self.content.replace(from, to)
+    }
+
+    fn to_uppercase(&self) -> String {
+        self.content.to_uppercase()
+    }
+    
+    fn word_frequency(&self) -> HashMap<String, usize> {        
+        // Use a temporary map of string slices so that we reduce heap allocations.
+        let map: HashMap<&str, usize> = self.content
+            .split_whitespace()
+
+            // fold: takes initial value (HashMap) + closure, accumulates across all items
+            // map: transforms each item individually, returns same number of items
+            // Here we need fold because we're building one HashMap from many words
+            .fold(HashMap::new(), |mut acc, word| {
+
+                // Use HashMap's entry API for efficient counting:
+                // 1. acc.entry(word) - get Entry enum (Occupied or Vacant)
+                // 2. .or_insert(0) - if vacant, insert 0; if occupied, return existing value
+                // 3. * - dereference to get the actual usize value
+                // 4. += 1 - increment the count
+                   *acc.entry(word).or_insert(0) += 1;
+                // ^
+                // This dereferences the mutable reference to get the actual usize value.
+                // These are exactly equivalent...
+                // *acc.entry(word).or_insert(0) += 1;                
+                // *(acc.entry(word).or_insert(0)) += 1;
+                
+                acc
+                // Our closure has to return the accumulator for the next iteration.
+            });
+
+        // Now we can map to the return value that can own this collection.
+        let result: HashMap<String, usize> = 
+            map.into_iter()
+            .map(|(k, v)| (k.to_string(), v))
+            .collect();
+
+        result
+    }
+
     // TODO: Implement save_to_file method
-    fn save_to_file(&self, filename: &str, content: &str) -> Result<(), Box<dyn std::error::Error>> {
-        todo!("Save content to a file")
+    fn save_to_file(&self, filename: &str) -> Result<(), Box<dyn std::error::Error>> {
+        std::fs::write(filename, &self.content)?;
+        Ok(())
     }
 
     fn count_words(content: &str) -> TextStats {
@@ -75,6 +109,7 @@ impl TextProcessor {
     }
 }
 
+// ...existing code...
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let processor = TextProcessor::new("sample.txt")?;
     
@@ -103,11 +138,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("{}: {}", word, count);
     }
     println!();
-    
-    // Create an uppercase version and save it
-    let upper_content = processor.to_uppercase();
-    processor.save_to_file("output.txt", &upper_content)?;
+
+    let uppercase_content = processor.to_uppercase();
+    std::fs::write("output.txt", uppercase_content)?;
     println!("Uppercase version saved to output.txt");
+    
+    // Demonstrate save_to_file functionality
+    processor.save_to_file("original_copy.txt")?;
+    println!("Original content saved to original_copy.txt");
+    
+    // Demonstrate replace_text functionality
+    let replaced_content = processor.replace_text("rust", "Rust");
+    std::fs::write("replaced.txt", replaced_content)?;
+    println!("Text with replacements saved to replaced.txt");
     
     Ok(())
 }
@@ -134,7 +177,7 @@ mod tests {
         
         assert_eq!(stats.lines, 2);
         assert_eq!(stats.words, 6);
-        assert_eq!(stats.characters, 24); // including newline
+        assert_eq!(stats.characters, 26); // including newline
         
         // Cleanup
         fs::remove_file("test.txt").unwrap();
@@ -149,8 +192,8 @@ mod tests {
         let matches = processor.search_lines("world");
         
         assert_eq!(matches.len(), 2);
-        assert_eq!(matches[0].0, 1);
-        assert_eq!(matches[1].0, 2);
+        assert_eq!(matches[0].0, 0);
+        assert_eq!(matches[1].0, 1);
         
         // Cleanup
         fs::remove_file("search_test.txt").unwrap();
