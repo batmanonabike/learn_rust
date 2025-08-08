@@ -51,12 +51,12 @@ impl Inventory {
     fn remove_items(&mut self, name: &str, quantity: u32) -> Result<(), String> {
 
         if let Some(index) = self.items.iter().position(|item| item.name == name) {          
-            let mut item = &mut self.items[index];  
+            let item = &mut self.items[index];  
             if item.quantity < quantity {
                 Err(format!("Insufficient quantity"))
             } else {
                 item.quantity -= quantity;
-                if (item.quantity == 0) {
+                if item.quantity == 0 {
                     self.items.remove(index);
                 } 
                 Ok(())
@@ -92,6 +92,17 @@ fn main() {
     match inventory.remove_items("Laptop", 10) {
         Ok(()) => println!("Removed 10 laptops", ),
         Err(e) => println!("Error: {}", e),
+    }
+    
+    // Demonstrate find_item method
+    if let Some(mouse) = inventory.find_item("Mouse") {
+        println!("Found mouse: ${:.2} with {} in stock", mouse.price, mouse.quantity);
+    }
+    
+    // Demonstrate update_quantity method
+    match inventory.update_quantity("Mouse", 15) {
+        Ok(()) => println!("Updated mouse quantity to 15"),
+        Err(e) => println!("Error updating quantity: {}", e),
     }
 }
 
@@ -141,5 +152,46 @@ mod tests {
         
         let result = inventory.remove_items("Item", 5);
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_find_item_exists() {
+        let mut inventory = Inventory::new();
+        inventory.add_item("Test Item".to_string(), 15.99, 3);
+        
+        let item = inventory.find_item("Test Item");
+        assert!(item.is_some());
+        let found_item = item.unwrap();
+        assert_eq!(found_item.name, "Test Item");
+        assert_eq!(found_item.price, 15.99);
+        assert_eq!(found_item.quantity, 3);
+    }
+
+    #[test]
+    fn test_find_item_not_exists() {
+        let inventory = Inventory::new();
+        let item = inventory.find_item("Nonexistent Item");
+        assert!(item.is_none());
+    }
+
+    #[test]
+    fn test_update_quantity_success() {
+        let mut inventory = Inventory::new();
+        inventory.add_item("Test Item".to_string(), 10.0, 5);
+        
+        let result = inventory.update_quantity("Test Item", 8);
+        assert!(result.is_ok());
+        
+        let item = inventory.find_item("Test Item");
+        assert_eq!(item.unwrap().quantity, 8);
+    }
+
+    #[test]
+    fn test_update_quantity_item_not_found() {
+        let mut inventory = Inventory::new();
+        
+        let result = inventory.update_quantity("Nonexistent Item", 5);
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Item Nonexistent Item not found in inventory");
     }
 }
