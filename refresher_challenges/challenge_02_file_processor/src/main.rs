@@ -3,6 +3,7 @@
 
 use std::collections::{HashMap, HashSet};
 use std::fs;
+use ahash::RandomState;
 
 #[derive(Debug)]
 struct TextStats {
@@ -48,7 +49,8 @@ impl TextProcessor {
         self.content.to_uppercase()
     }
     
-    fn word_frequency(&self) -> HashMap<String, usize> {        
+    #[allow(dead_code)]
+    fn word_frequency_crypto_safe(&self) -> HashMap<String, usize> {        
         // Use a temporary map of string slices so that we reduce heap allocations.
         let map: HashMap<&str, usize> = self.content
             .split_whitespace()
@@ -57,6 +59,43 @@ impl TextProcessor {
             // map: transforms each item individually, returns same number of items
             // Here we need fold because we're building one HashMap from many words
             .fold(HashMap::new(), |mut acc, word| {
+
+                // Use HashMap's entry API for efficient counting:
+                // 1. acc.entry(word) - get Entry enum (Occupied or Vacant)
+                // 2. .or_insert(0) - if vacant, insert 0; if occupied, return existing value
+                // 3. * - dereference to get the actual usize value
+                // 4. += 1 - increment the count
+                   *acc.entry(word).or_insert(0) += 1;
+                // ^
+                // This dereferences the mutable reference to get the actual usize value.
+                // These are exactly equivalent...
+                // *acc.entry(word).or_insert(0) += 1;                
+                // *(acc.entry(word).or_insert(0)) += 1;
+                
+                acc
+                // Our closure has to return the accumulator for the next iteration.
+            });
+
+        // Now we can map to the return value that can own this collection.
+        let result: HashMap<String, usize> = 
+            map.into_iter()
+            .map(|(k, v)| (k.to_string(), v))
+            .collect();
+
+        result
+    }
+
+    // This version uses faster hash map which doesnt care to be crptographically safe.
+    // See hashbrown/ahash.
+    fn word_frequency_faster(&self) -> HashMap<String, usize> {
+       // Use a temporary map of string slices so that we reduce heap allocations.
+        let map: HashMap<&str, usize, RandomState> = self.content
+            .split_whitespace()
+
+            // fold: takes initial value (HashMap) + closure, accumulates across all items
+            // map: transforms each item individually, returns same number of items
+            // Here we need fold because we're building one HashMap from many words
+            .fold(HashMap::with_hasher(RandomState::new()), |mut acc, word| {
 
                 // Use HashMap's entry API for efficient counting:
                 // 1. acc.entry(word) - get Entry enum (Occupied or Vacant)
@@ -130,7 +169,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!();
     
     // Show word frequency
-    let freq = processor.word_frequency();
+    let freq = processor.word_frequency_faster();
     println!("Word frequency (top 5):");
     let mut freq_vec: Vec<_> = freq.iter().collect();
     freq_vec.sort_by(|a, b| b.1.cmp(a.1));
@@ -205,7 +244,7 @@ mod tests {
         fs::write("freq_test.txt", content).unwrap();
         
         let processor = TextProcessor::new("freq_test.txt").unwrap();
-        let freq = processor.word_frequency();
+        let freq = processor.word_frequency_faster();
         
         assert_eq!(freq.get("hello"), Some(&2));
         assert_eq!(freq.get("world"), Some(&2));
